@@ -26,6 +26,20 @@ Sen yokken bile evrenler dönmeye devam eder. Uygarlıklar doğar, doktrinlerine
 
 ---
 
+## Ekran Görüntüleri
+
+| Standart Kozmos | İlahi Hâkimiyet & Bloklar (`M`) |
+| :---: | :---: |
+| ![Standart kozmos haritası](docs/screenshots/02-standart-kozmos.png) | ![İlahi hâkimiyet katmanı](docs/screenshots/03-ilahi-hakimiyet.png) |
+| **Ekonomi & Ruh Havuzu (`M` + Zümrüt tema `T`)** | **Ana Menü** |
+| ![Ekonomi ve ruh havuzu katmanı](docs/screenshots/04-ekonomi-tema.png) | ![Ana menü](docs/screenshots/01-ana-menu.png) |
+
+**KozMO Ansiklopedisi (`F1`)** — 8 bölüm, etkileşimli eğitici görev zinciri ve üç zafer yolunun canlı ilerlemesi:
+
+![KozMO Ansiklopedisi ve Wiki](docs/screenshots/05-ansiklopedi.png)
+
+---
+
 ## Oynanış Döngüsü
 
 > **Kehanet yay → Ruh hasat et → İlahi gücünü aç → Evreni şekillendir → Rakibi mühürle.**

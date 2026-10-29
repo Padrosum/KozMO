@@ -13,3 +13,4 @@
 | `assets/art/events/*.svg` | KozMO / Eternal Dominion Projesi (Özgün Geometrik Vektör) | CC-BY-SA-4.0 / GPL-3.0-or-later | 2026-10-22 | Kozmik olay uyarı ikonları |
 | `assets/art/ui/*.svg` | KozMO / Eternal Dominion Projesi (Özgün Geometrik Vektör) | CC-BY-SA-4.0 / GPL-3.0-or-later | 2026-10-22 | Ruh, Nüfuz ve Kozmik Öz kaynak sembolleri |
 | `assets/art/logos/*.svg` | KozMO / Eternal Dominion Projesi (Özgün Geometrik Vektör) | CC-BY-SA-4.0 / GPL-3.0-or-later | 2026-10-22 | KozMO ana mühür logosu |
+| `docs/screenshots/*.png` | KozMO / Eternal Dominion Projesi (oyun içi ekran görüntüleri) | CC-BY-SA-4.0 / GPL-3.0-or-later | 2026-10-30 | README tanıtımı için gerçek oyun içi görüntüler (1600 px, optimize PNG) |
