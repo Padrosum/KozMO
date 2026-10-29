@@ -1,0 +1,12 @@
+[package]
+name = "dominion-content"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Data-driven content definitions (universe types, divine powers, scenarios) for Eternal Dominion."
+
+[dependencies]
+dominion-sim.workspace = true
+serde.workspace = true
+serde_json.workspace = true

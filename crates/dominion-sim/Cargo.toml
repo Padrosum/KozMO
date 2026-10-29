@@ -1,0 +1,23 @@
+[package]
+name = "dominion-sim"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Core deterministic cosmic simulation for Eternal Dominion, independent of graphical runtime."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[[test]]
+name = "economy_tests"
+path = "../../tests/economy_tests.rs"
+
+[[test]]
+name = "simulation_tests"
+path = "../../tests/simulation_tests.rs"
+
+[[test]]
+name = "save_load_tests"
+path = "../../tests/save_load_tests.rs"

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "Life",
+    "name_tr": "Yaşam Evreni",
+    "primary_color_hex": "#5ED6C1",
+    "accent_color_hex": "#E5C77A",
+    "svg_asset": "art/universes/universe_life.svg",
+    "description_tr": "Çok sayıda uygarlık, yüksek ruh potansiyeli ve karmaşık siyasi ilişkiler."
+  },
+  {
+    "id": "Chaos",
+    "name_tr": "Kaos Evreni",
+    "primary_color_hex": "#F06A78",
+    "accent_color_hex": "#9B7BFF",
+    "svg_asset": "art/universes/universe_chaos.svg",
+    "description_tr": "Sık savaşlar, istikrarsız gerçeklik ve öngörülemez olaylar."
+  },
+  {
+    "id": "Faith",
+    "name_tr": "İnanç Evreni",
+    "primary_color_hex": "#E5C77A",
+    "accent_color_hex": "#9B7BFF",
+    "svg_asset": "art/universes/universe_faith.svg",
+    "description_tr": "Güçlü dinler, kehanetler ve tanrılara yoğun bağlılık."
+  },
+  {
+    "id": "Tech",
+    "name_tr": "Teknoloji Evreni",
+    "primary_color_hex": "#5ED6C1",
+    "accent_color_hex": "#9AA8BD",
+    "svg_asset": "art/universes/universe_tech.svg",
+    "description_tr": "İleri uygarlıklar, bilimsel gelişim ve tanrısal müdahaleye karşı koyabilecek sistemler."
+  },
+  {
+    "id": "Primordial",
+    "name_tr": "İlksel Evren",
+    "primary_color_hex": "#9AA8BD",
+    "accent_color_hex": "#E5C77A",
+    "svg_asset": "art/universes/universe_primordial.svg",
+    "description_tr": "Henüz gelişmemiş gerçeklikler; yaşam yaratmak ve fizik yasalarını şekillendirmek mümkün."
+  },
+  {
+    "id": "Collapsing",
+    "name_tr": "Çöken Evren",
+    "primary_color_hex": "#F06A78",
+    "accent_color_hex": "#9AA8BD",
+    "svg_asset": "art/universes/universe_collapsing.svg",
+    "description_tr": "Gerçekliğin bozulduğu, ruhların kaybolabildiği ve eski tanrıların terk ettiği bölgeler."
+  }
+]

@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/dominion-sim",
+    "crates/dominion-content",
+    "crates/dominion-game",
+]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+license = "GPL-3.0-or-later"
+authors = ["Eternal Dominion Contributors"]
+
+[workspace.dependencies]
+bevy = { version = "0.20", default-features = false, features = ["2d", "ui", "audio"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+dominion-sim = { path = "crates/dominion-sim" }
+dominion-content = { path = "crates/dominion-content" }

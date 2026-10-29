@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="56" fill="#111827" stroke="#9AA8BD" stroke-width="3"/>
+  <polygon points="64,22 102,64 64,106 26,64" fill="none" stroke="#E5C77A" stroke-width="2.5"/>
+  <circle cx="64" cy="64" r="14" fill="#9AA8BD"/>
+</svg>

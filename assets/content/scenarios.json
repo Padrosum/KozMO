@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cosmic_ascension",
+    "title_tr": "Kozmik Yükseliş (Ana Senaryo)",
+    "universe_count": 60,
+    "rival_deity_count": 8,
+    "mode": "ScenarioCosmicAscension",
+    "difficulty": "Balanced"
+  },
+  {
+    "id": "twilight_of_gods",
+    "title_tr": "İlahların Alacakaranlığı (Zorlu Senaryo)",
+    "universe_count": 60,
+    "rival_deity_count": 8,
+    "mode": "ScenarioCosmicAscension",
+    "difficulty": "Grandmaster"
+  },
+  {
+    "id": "endless_pool_sandbox",
+    "title_tr": "Sonsuz Havuz (Serbest Sandbox)",
+    "universe_count": 60,
+    "rival_deity_count": 8,
+    "mode": "SandboxEndlessPool",
+    "difficulty": "Story"
+  }
+]

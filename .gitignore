@@ -1,0 +1,5 @@
+/target/
+/saves/*.sav
+/saves/*.tmp
+*.swp
+.DS_Store
