@@ -31,6 +31,8 @@ fn main() {
         DefaultPlugins
             .set(WindowPlugin {
                 primary_window: Some(Window {
+                    // WM_CLASS / Wayland app_id → .desktop dosyası ve görev çubuğu ikonu eşleşmesi
+                    name: Some("kozmo".to_string()),
                     title: "KozMO — Kozmik Sandbox Strateji (v0.2)".to_string(),
                     resolution: WindowResolution::new(1440, 860),
                     ..default()

@@ -116,6 +116,37 @@ cargo build --release -p dominion-game   # -> ./target/release/dominion-game
 
 **İndirme paketleri:** Her sürümde Linux (`.tar.gz`), Windows (`.zip`) ve macOS ARM64 (`.tar.gz`) paketleri [Releases](https://github.com/Padrosum/KozMO/releases) sayfasında yayınlanır.
 
+### 3. Sistem kurulumu (installer + KDE entegrasyonu)
+
+Depodaki `install.sh`, oyunu derleyip sistem yoluna kurar ve masaüstüne entegre eder:
+
+```bash
+./install.sh                       # /usr/local (sudo yalnızca dosya kopyalama adımında)
+./install.sh --user                # ~/.local — sudo gerekmez
+./install.sh --desktop-shortcut    # ayrıca masaüstü kısayolu bırak
+./install.sh --no-kde              # masaüstü entegrasyonunu atla
+./install.sh --prefix /opt/kozmo   # özel kurulum dizini
+```
+
+Kurulan bileşenler:
+
+| Yol | İçerik |
+| :--- | :--- |
+| `<önek>/bin/kozmo` | Başlatıcı: varlık yolunu ve yazılabilir kayıt dizinini hazırlar |
+| `<önek>/lib/kozmo/dominion-game` | Oyun ikilisi |
+| `<önek>/share/kozmo/assets` | Oyun varlıkları |
+| `<önek>/share/applications/kozmo.desktop` | KDE menü kaydı (KRunner anahtar kelimeleri + "Kayıt Klasörünü Aç" eylemi) |
+| `<önek>/share/icons/hicolor/*/apps/kozmo.*` | SVG ikon + üretilebilen PNG boyutları |
+| `<önek>/share/metainfo/…metainfo.xml` | AppStream/Discover kaydı |
+
+Kurulumdan sonra oyunu menüden **Uygulamalar → Oyunlar → KozMO** ile veya terminalden `kozmo` yazarak açabilirsin. Oyun, kayıtları XDG veri dizinine yazar: `~/.local/share/kozmo/saves/eternal_dominion.sav`. KDE'de `kbuildsycoca` ve ikon önbelleği otomatik tazelenir.
+
+```bash
+./install.sh --uninstall           # kaldır (kayıtlar korunur)
+./install.sh --uninstall --purge   # kayıtları ve kullanıcı verisini de sil
+```
+
+
 ---
 
 ## Mimari
