@@ -1,3 +1,5 @@
+> **Arşiv notu:** Bu dosya projenin ilk kurulum istemidir; aşağıdaki gelecek zamanlı maddeler başlangıç planını yansıtır, güncel proje durumu değildir. Güncel mimari ve davranış için `AGENTS.md`, `TASARIM.md` ve kaynak koduna bakın.
+
 Hocam, güzel seçim! Eternal Dominion'ı Bevy + Rust ile geliştirelim. Bu ikili özellikle bağımsız evrenler, rakip tanrılar, medeniyet simülasyonu ve olay tabanlı bir kozmik sandbox için heyecan verici.
 
 Burada hedefimiz yalnızca ekranda 60 evren göstermek değil; oyuncu hiçbirine müdahale etmese de evrenlerin geliştiği, tanrıların kendi çıkarları doğrultusunda hareket ettiği ve her oyunun farklı bir tarih ürettiği bir sistem kurmak.

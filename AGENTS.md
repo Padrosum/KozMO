@@ -14,6 +14,7 @@ Build a fully playable cosmic sandbox strategy game using Rust and Bevy. The gam
 - Use a fixed simulation timestep independent of rendering FPS.
 - Make randomness seedable and controllable in tests.
 - Define and test a stable system update order.
+- Keep simulation phases in focused modules where practical; phase extraction must preserve the documented update order and gameplay behavior.
 - Unobserved universes must continue to evolve.
 - Track the source, expenditure, transfer, and removal of resources.
 - Preserve enough state to resume deterministic simulation where supported.
@@ -29,7 +30,7 @@ Build a fully playable cosmic sandbox strategy game using Rust and Bevy. The gam
 - Measure before optimizing.
 - Avoid unnecessary cloning of large state.
 - Use lower-frequency background simulation where appropriate.
-- Preserve gameplay consistency when optimizing distant universes.
+- Make the determinism and approximation guarantees of distant-universe optimization explicit; test optimized behavior and do not claim equivalence unless verified.
 - Establish performance budgets from benchmark results.
 
 ## Persistence

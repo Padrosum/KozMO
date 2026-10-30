@@ -88,3 +88,7 @@ Onayınız doğrultusunda mevcut arayüz ve harita üzerinde şu görsel zenginl
 ## 6. Onay Durumu
 
 - [x] **Oyuncu Onayı:** `ONAYLANDI VE OYUN İÇİNE TAMAMEN UYGULANDI` *(4'lü Kozmik Atmosfer Teması (`T`), 4'lü Harita Analiz Katmanı (`M`), Prosedürel Kozmik Ses Sentezleyicisi (`V` / `♪ Ses`), Evren Çekirdek/Aura, Başkent Mühür Tacı ve Uygarlık Yörünge Uyduları, Canlı İndirimli Maliyetli 2sn Buton Açıklama Kartı, Konu Başlıklı 8 Bölümlü Wiki (`F1`) ve Görsel Yoğunluk Çubukları aktif durumdadır.)*
+
+## 7. Simülasyonla arayüz arasındaki sınır
+
+Arayüz görsel seçim, gösterim ve girdi katmanıdır; kurallar Bevy'den bağımsız `dominion-sim` içinde uygulanır. Simülasyonun sabit tur sırası; evrim, ekonomi, olaylar, rakip kararları, diplomasi ve sonuç değerlendirmesini izler. Sonuç değerlendirmesi `simulation/endgame.rs` modülüne ayrılmıştır. Arayüzde gösterilen kaynak akışları, eylem sonuçları ve zafer durumu simülasyon durumundan alınmalı; arayüz tarafında ikinci bir kural hesabı oluşturulmamalıdır.

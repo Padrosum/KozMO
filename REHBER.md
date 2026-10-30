@@ -32,18 +32,18 @@ Oyuna başladığınızda sağ panelin üst kısmında **Eğitici Görev Kutusu*
 
 1. **Ruh (`#9B7BFF` Mor Vurgu)**:
    * **Nasıl Kazanılır?** Ölümlülerin doğal ölümlerinden (`soul_reservoir`), savaşlardan, tapınak ibadetlerinden, diplomatik pakt ticaretinden (`+4 Ruh/tur`) ve `Ruh Hasadı (25N)` emrinden elde edilir.
-   * **Gerçekçi Havuz Kuralı:** `Ruh Hasadı` yalnızca evrenin ruh havuzunda (`>= 15`) veya ölümlü nüfusunda (`>= 30M`) yeterli birikim varsa yapılabilir; aşırı hasat ölümlü istikrarını ve inanç coşkusunu düşürür, `Mucize Bahşet (60R 25N)` ise havuzu ve nüfusu yeniler.
+   * **Gerçekçi Havuz Kuralı:** `Ruh Hasadı` için ruh havuzunun en az `15` veya toplam nüfusun en az `30` olması gerekir (simülasyon nüfus birimi). Hasat ruh havuzunun yaklaşık `%65`'ini alır ve uygarlıkların nüfusunu, istikrarını ve inanç coşkusunu düşürür. `Mucize Bahşet (60 Ruh, 25 Nüfuz)` istikrarı ve ruh havuzunu destekler.
 2. **Nüfuz (`#E5C77A` Altın Vurgu)**:
    * **Nasıl Kazanılır?** Baskın olduğunuz evrenlerden, tapınak ibadetlerinden ve aktif `Ateşkes Paktı` anlaşmalarından (`+3 Nüfuz/tur`) akar.
    * **★ Tam Aidiyet (`%65+`) Ekonomik Bonusu:** Bir evrende `★ Tam Aidiyet` kurduğunuzda o evrenden gelen ibadet ruhu ve pasif nüfuz akışı **`+%30` artar** (Teknoloji evrenlerinde aydınlanmış teknokrasi bonusu olarak ek `+2 Nüfuz, +1 Öz / tur` verir).
    * **Nerede Kullanılır?** Kehanet yaymak (`20R 25N`), isyan kışkırtmak (`30R 40N`), keşif yapmak (`20R 20N`), ruh hasadı yapmak (`25N`) ve diplomasi yürütmek için ana stratejik kaynaktır.
 3. **Kozmik Öz (`#5ED6C1` Turkuaz Vurgu)**:
    * **Nasıl Kazanılır?** İlksel, Çöken ve Kaos evrenlerinden, kozmik anomalilerden ve `Kozmik Öz Çıkar (65R 25N)` emrinden damıtılır.
-   * **Damar Yorgunluğu ve Yenilenme:** `Kozmik Öz Çıkar` emri evrenin öz zenginliğini geçici olarak `-0.22x` azaltır (`0.45x` altına düşen evrenler dinlenmeye ihtiyaç duyar); öz damarları her tur doğal olarak veya `Gerçekliği Onar (85R 35N 20Ö)` (`+0.25x`) ile yenilenir.
+   * **Damar Yorgunluğu ve Yenilenme:** `Kozmik Öz Çıkar` öz zenginliğini normalde `-0.22` azaltır (Öz Yoğunlaştırıcı gücü varsa `-0.10`). Zenginlik `0.45` altındaysa yeniden çıkarım yapılamaz. Öz zenginliği her tur evren türüne göre doğal olarak yenilenir; `Gerçekliği Onar (85 Ruh, 35 Nüfuz, 20 Öz)` buna ayrıca `+0.25` kazandırır.
 4. **İmparatorluk Giderleri ve Sızıntılar (`Zafer & Oyun` Defteri)**:
    * **Evren Çöküşü (`UniverseCollapse`):** Çökmekte olan evrenler onarılmazsa her tur `-5 Ruh, -1 Nüfuz` sızdırır.
-   * **İsyan ve Mezhep Bölünmesi (`RebellionSchism`):** Hâkim olduğunuz evrenlerdeki her isyancı uygarlık `-3 Ruh, -2 Nüfuz` kaybettirir.
-   * **Kozmik Aşınma (`UpkeepDecay`):** İstikrarı `%35` altındaki evrenler veya `8`'den fazla evrene yayılan imparatorluklardaki istikrarsız (`<%55`) düğümler bakım gideri oluşturur.
+   * **İsyan ve Mezhep Bölünmesi (`RebellionSchism`):** Hâkim olduğunuz evrenlerdeki her isyancı uygarlık tur başına `-3 Ruh, -2 Nüfuz` kaybettirir; Boyutsal Kalkan bu kaybı `-1 Ruh, -1 Nüfuz` seviyesine düşürür.
+   * **Kozmik Aşınma (`UpkeepDecay`):** Hâkim olunan evrenin istikrarı `%35` altındaysa tur başına `-2 Ruh, -1 Nüfuz` kaybı oluşur. Hâkim olunan evren sayısı `8`'i aştıktan sonra `%55` altı istikrara sahip her ek hâkimiyet düğümü başına `-1 Ruh, -1 Nüfuz` daha uygulanır. Boyutsal Kalkan bu giderleri engelleyebilir.
 
 > **Evren ve Kaynak Defteri:** Sağ panelin `Evren` sekmesinde seçili evrenin **Tur Başı Ekonomisi** net olarak gösterilir; `Zafer & Oyun` sekmesinde ise tüm gelir, harcama ve aşınma/kayıp kalemleri takip edilir.
 
@@ -75,7 +75,7 @@ Haritadaki her evren kategorisi, yalnızca renkle değil özgün geometrik şekl
 * **Kozmik Ana Menü ve İlah Adı (`Esc` / `☰ Ana Menü`)**:
   * Oyun açılışında veya oyun sırasında `Esc` tuşuyla açılan Ana Menüden (`✦ KozMO ✦`) kendi **İlah Adınızı** klavyeyle yazabilir veya `↻ Rastgele Kozmik İlah Adı Seç` ile belirleyebilirsiniz. Yukarıdan aşağıya animasyonlu **`✦ YENİ OYUN BAŞLAT`**, **`⚙ AYARLAR`** ve **`✖ ÇIKIŞ`** butonlarıyla oyunu yönetebilirsiniz.
 * **Geçitler Üzerinden İnanç Yayılımı**: Bir evrende nüfuzunuz `%50`'yi aştığında, inancınız **Açık Geçitler (`[AÇIK]`)** üzerinden komşu evrenlere her tur kendiliğinden yayılmaya başlar. Rakip bir tanrının inancının sizin bölgenize sızmasını önlemek için aradaki geçidi **`Geçitleri Kapat`** emriyle kapatabilirsiniz.
-* **Evrene Odaklanma (`Evrene Odaklan (F)`)**: Hâkim olduğunuz seçili bir evrene odaklandığınızda harita üzerinde o evrenin etrafında yörünge halkası döner; o evrenden gelen ibadet ruhu/nüfuzu **`+%25` artar** ve her tur ek istikrar desteği sağlanır.
+* **Evrene Odaklanma (`Evrene Odaklan (F)`)**: Hâkim olduğunuz seçili evrene odaklanmak, ilgili evrenin ibadet ruhu ve nüfuz gelirini **`+%25`** artırır. Ek istikrar desteği bu eylemin kendisinden gelmez.
 * **Kozmik İkilemler (`İkilem A` / `İkilem B`)**: Keşfedilen evrenlerde boyutsal yarıklar veya krizler belirdiğinde sağ panelde aktif bir ikilem doğar; ücretsiz olarak **Kutsama/Düzen** veya **Sömürü/Öz Hasadı** kararlarından birini seçebilirsiniz.
 
 ---
@@ -116,7 +116,7 @@ Her ölümlü uygarlık, bulunduğu evrenin türünden bağımsız olarak 5 dokt
 4. **`Hanedan` (Savaşçı Hanedan):** Savaş ve ölümlü kaybı ruh üretimini **+%25 artırır**.
 5. **`Mistik` (Hiçlik Mistikleri):** Kaos ve Çöküş evrenlerindeki istikrar aşınmasına bağışıklık sağlar.
 
-* **Rakip Kültler ve Mezhep Savaşları:** Çok uygarlıklı bir evrende iki farklı ilah `%25+` nüfuza ulaşırsa uygarlıklar rakip mezheplere (`Kült` / `Mezhep`) bölünür. Mezhep çatışmaları çıktığında evrenin Ruh Havuzu **`+18 Ruh`** kazanır, kazanan kültün ilahı **`+%6 Nüfuz`** kazanırken kaybeden **`-%5 Nüfuz`** kaybeder. `Mucize Bahşet` veya `☀ Uygarlığı Aydınlat` emriyle tüm uygarlıkları kendi kültünüze birleştirebilirsiniz.
+* **Rakip Kültler ve Mezhep Savaşları:** En az iki uygarlıklı bir evrende iki ilahın nüfuzu `%25+` olduğunda farklı kültler oluşabilir. Farklı ilahlara bağlı uygarlıklar varsa çatışma evren/tur eşleşmesine göre her `12` turda bir çözülür. Çatışma ruh havuzuna `+18 Ruh` ekler; kazanan ilah `+6` nüfuz, kaybeden `-5` nüfuz alır. `Mucize Bahşet` veya `☀ Uygarlığı Aydınlat` emri uygarlıkları kendi kültünüze döndürebilir.
 
 ---
 

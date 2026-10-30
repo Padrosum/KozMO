@@ -12,6 +12,11 @@ use crate::universe::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "simulation/economy.rs"]
+mod economy_phase;
+#[path = "simulation/endgame.rs"]
+mod endgame;
+
 pub const DEFAULT_UNIVERSE_COUNT: usize = 60;
 pub const DEFAULT_RIVAL_DEITY_COUNT: usize = 8;
 
@@ -2868,8 +2873,12 @@ impl SimulationState {
         );
     }
 
-    /// Advances the cosmic simulation by one fixed timestep tick in a strictly defined,
-    /// deterministic 6-phase update order.
+    /// Advances the cosmic simulation by one fixed timestep tick.
+    ///
+    /// The phase order below is part of the simulation contract: universe/civilization
+    /// evolution, economy, cosmic events, rival decisions, diplomacy, then outcomes.
+    /// Keep this order stable; changing it can change deterministic save replays and
+    /// gameplay results even when the RNG seed is unchanged.
     pub fn step_tick(&mut self) {
         if !matches!(self.outcome, GameOutcome::Ongoing)
             && self.config.game_mode == GameMode::ScenarioCosmicAscension
@@ -2896,9 +2905,11 @@ impl SimulationState {
                 continue;
             }
 
-            // Background optimization for distant unobserved universes with no player influence:
-            // Evolve every 2nd tick with 2.0x scaled stability/reservoir/population updates,
-            // preserving gameplay consistency while cutting distant unobserved CPU work in half.
+            // Background approximation for distant unobserved universes with no player influence:
+            // Evolve every 2nd tick with 2.0x scaled continuous updates to cut CPU work in half.
+            // This is deterministic for a given seed, but is not guaranteed to match the exact
+            // state of an unoptimized run because nonlinear/clamped updates and random events
+            // do not necessarily commute with the skipped tick.
             let is_distant_unobserved = self.enable_background_optimization
                 && !self.universes[u_idx].discovered_by_player
                 && self.universes[u_idx].region_tier >= 2
@@ -3299,7 +3310,7 @@ impl SimulationState {
         let mut death_income = vec![Resources::ZERO; deity_count];
         let mut devotion_income = vec![Resources::ZERO; deity_count];
         let mut passive_income = vec![Resources::ZERO; deity_count];
-        let mut diplomacy_income = vec![Resources::ZERO; deity_count];
+        let diplomacy_income = economy_phase::diplomacy_income(&self.deities);
         let mut collapse_loss = vec![Resources::ZERO; deity_count];
         let mut rebellion_loss = vec![Resources::ZERO; deity_count];
         let mut upkeep_loss = vec![Resources::ZERO; deity_count];
@@ -3335,44 +3346,6 @@ impl SimulationState {
                             upkeep_loss[d_idx].influence += 1;
                         }
                     }
-                }
-            }
-        }
-
-        // Active Diplomatic Pacts & EternalSeal tribute yield cosmic trade/tribute income
-        for (d_idx, dip_inc) in diplomacy_income.iter_mut().enumerate().take(deity_count) {
-            if self.deities[d_idx].is_sealed {
-                continue;
-            }
-            let d_id = self.deities[d_idx].id;
-            let active_pacts = self.deities[d_idx]
-                .stances
-                .iter()
-                .filter(|(&other_id, stance)| {
-                    matches!(stance, DiplomaticStance::Pact { .. })
-                        && self
-                            .deities
-                            .get(other_id as usize)
-                            .is_some_and(|od| !od.is_sealed)
-                })
-                .count() as i64;
-            if active_pacts > 0 {
-                dip_inc.souls += active_pacts * 4;
-                dip_inc.influence += active_pacts * 3;
-            }
-
-            if self.deities[d_idx].has_power(PowerId::EternalSeal) {
-                let sealed_tribute_count = self
-                    .deities
-                    .iter()
-                    .filter(|od| {
-                        od.is_sealed && (od.sealed_by == Some(d_id) || d_id == PLAYER_DEITY_ID)
-                    })
-                    .count() as i64;
-                if sealed_tribute_count > 0 {
-                    dip_inc.souls += sealed_tribute_count * 8;
-                    dip_inc.influence += sealed_tribute_count * 5;
-                    dip_inc.cosmic_essence += sealed_tribute_count * 2;
                 }
             }
         }
@@ -3992,138 +3965,6 @@ impl SimulationState {
             };
 
             let _ = self.execute_action(deity_id, action);
-        }
-    }
-
-    fn phase_5_update_diplomacy_and_seals(&mut self) {
-        for d in &mut self.deities {
-            for stance in d.stances.values_mut() {
-                if let DiplomaticStance::Pact { ticks_remaining } = stance {
-                    if *ticks_remaining <= 1 {
-                        *stance = DiplomaticStance::Neutral;
-                    } else {
-                        *ticks_remaining -= 1;
-                    }
-                }
-            }
-        }
-    }
-
-    fn phase_6_evaluate_victory_and_defeat(&mut self) {
-        if !matches!(self.outcome, GameOutcome::Ongoing) {
-            return;
-        }
-        if self.config.game_mode == GameMode::SandboxEndlessPool {
-            return;
-        }
-
-        // Single-pass ownership tally across all universes
-        let (dom_counts, full_counts) = self.all_deity_universe_counts();
-
-        // 1. Check Player Defeat
-        let player_dom = dom_counts
-            .get(PLAYER_DEITY_ID as usize)
-            .copied()
-            .unwrap_or(0);
-        let player_full = full_counts
-            .get(PLAYER_DEITY_ID as usize)
-            .copied()
-            .unwrap_or(0);
-        let player_any_inf = self
-            .universes
-            .iter()
-            .any(|u| !u.is_destroyed && u.influence_of(PLAYER_DEITY_ID) >= 10.0);
-        let player_res = self.deities[PLAYER_DEITY_ID as usize].resources;
-
-        if self.deities[PLAYER_DEITY_ID as usize].is_sealed
-            || (!player_any_inf && player_res.souls < 50 && player_dom == 0)
-        {
-            self.outcome = GameOutcome::PlayerDefeat {
-                tick: self.tick,
-                reason: "Son kozmik dayanaklarını ve tanrısal özünü kaybettin; varlığın hiçliğe mühürlendi."
-                    .to_string(),
-            };
-            return;
-        }
-
-        // Check if a rival deity achieved Transcendence or Cosmic Hegemony first
-        for d in self.deities.iter().skip(1) {
-            if d.is_sealed {
-                continue;
-            }
-            let r_dom = dom_counts.get(d.id as usize).copied().unwrap_or(0);
-            let r_full = full_counts.get(d.id as usize).copied().unwrap_or(0);
-            if d.ascension_progress >= 100.0
-                && d.unlocked_powers.len() >= TRANSCENDENCE_REQUIRED_POWERS
-                && r_full >= TRANSCENDENCE_REQUIRED_FULL_ALLEGIANCE
-            {
-                self.outcome = GameOutcome::PlayerDefeat {
-                    tick: self.tick,
-                    reason: format!(
-                        "Rakip tanrı {} ({}) 10 aşamalı Aşkınlık Ritüelini ve kozmik güçlerini tamamlayarak tüm kozmosa hükmetti!",
-                        d.name, d.title
-                    ),
-                };
-                return;
-            }
-            if r_dom >= DOMINION_REQUIRED_DOMINATED {
-                self.outcome = GameOutcome::PlayerDefeat {
-                    tick: self.tick,
-                    reason: format!(
-                        "Rakip tanrı {} ({}) {} evrende mutlak hegemonya kurarak kozmik tahtı ele geçirdi!",
-                        d.name, d.title, r_dom
-                    ),
-                };
-                return;
-            }
-        }
-
-        // 2. Check Challenging Multi-Pillar Player Victory Paths
-        // Path A: Dominion (Hâkimiyet) — 35 Dominated + 18 Full Allegiance (★) + 5 Sealed Rivals
-        let sealed_rivals = self.sealed_rival_count();
-        if player_dom >= DOMINION_REQUIRED_DOMINATED
-            && player_full >= DOMINION_REQUIRED_FULL_ALLEGIANCE
-            && sealed_rivals >= DOMINION_REQUIRED_SEALED_RIVALS
-        {
-            self.outcome = GameOutcome::PlayerVictory {
-                path: VictoryPath::Dominion,
-                tick: self.tick,
-                summary: format!(
-                    "{player_dom} evrende baskınlık ({player_full} ★ Tam Aidiyet) kurdun ve {sealed_rivals} rakip tanrıyı mühürleyerek Kozmik Tahtın tek sahibi oldun!"
-                ),
-            };
-            return;
-        }
-
-        // Path B: Transcendence (Aşkınlık) — 100% Ritual (10 steps) + 10 Unlocked Powers + 10 Full Allegiance (★)
-        let player = &self.deities[PLAYER_DEITY_ID as usize];
-        if player.ascension_progress >= 100.0
-            && player.unlocked_powers.len() >= TRANSCENDENCE_REQUIRED_POWERS
-            && player_full >= TRANSCENDENCE_REQUIRED_FULL_ALLEGIANCE
-        {
-            self.outcome = GameOutcome::PlayerVictory {
-                path: VictoryPath::Transcendence,
-                tick: self.tick,
-                summary: format!(
-                    "10 aşamalı Aşkınlık Ritüelini %100 tamamladın, {} ilahi gücü uyandırdın ve {} ★ Tam Aidiyet evreniyle saf kozmik bilince yükseldin!",
-                    player.unlocked_powers.len(),
-                    player_full
-                ),
-            };
-            return;
-        }
-
-        // Path C: Creation (Yaratım) — 15 Harmonious Shaped Universes (★ Full Allegiance, >=75% Stability, Active Civ) + Full Creation Tree (3/3)
-        let harmonious_count = self.harmonious_shaped_universe_count(PLAYER_DEITY_ID);
-        let full_creation_tree = self.has_full_creation_tree(PLAYER_DEITY_ID);
-        if harmonious_count >= CREATION_REQUIRED_SHAPED_UNIVERSES && full_creation_tree {
-            self.outcome = GameOutcome::PlayerVictory {
-                path: VictoryPath::Creation,
-                tick: self.tick,
-                summary: format!(
-                    "Yaratım Ağacında ustalaşarak kendi ilahi düzenine bağlı {harmonious_count} yüksek istikrarlı ve ★ Tam Aidiyetli evrenden oluşan kusursuz bir kozmik ağ yarattın!"
-                ),
-            };
         }
     }
 }

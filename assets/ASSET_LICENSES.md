@@ -2,6 +2,8 @@
 
 `TASARIM.md` Bölüm 10 ve 11.2 uyarınca depodaki tüm görsel ve yazı tipi varlıklarının kaynağı ve lisansı aşağıda kayıt altına alınmıştır.
 
+> **2026-10-30 güncelleme:** Simülasyon kodunun modülerleştirilmesi yeni görsel veya yazı tipi varlığı eklemediği/değiştirmediği için bu envanter satırları değişmemiştir.
+
 | Dosya Yolu | Kaynak / Üretici | Lisans | Tarih | Açıklama |
 |---|---|---|---|---|
 | `assets/fonts/DejaVuSans.ttf` | DejaVu Fonts Project / Bitstream Vera | Bitstream Vera / Arev / Public Domain (Özgür Dağıtım Lisansı) | 2026-10-24 | Tam Türkçe Unicode (`ğ, Ğ, ş, Ş, ı, İ, ö, Ö, ü, Ü, ç, Ç, â, î`) ve sembol destekli varsayılan 2D harita yazı tipi |

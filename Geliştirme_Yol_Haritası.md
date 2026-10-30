@@ -1,6 +1,6 @@
 # KozMO — Faz 2.2 ve 2.3 Geliştirme Yol Haritası ve Tasarım Taslağı (`Geliştirme_Yol_Haritası.md`)
 
-> **Durum:** `ONAYLANDI VE OYUN İÇİNE TAMAMEN UYGULANDI (Faz 2.1, 2.2, 2.3 ve 2.4 Tamamlandı)`  
+> **Durum:** `Faz 2.1–2.4 tamamlandı; simülasyon modülerleştirmesi sürüyor`
 > **Kapsam:** **Adım 2.1 (Tüm Markdown Belgelerinin ve Lisans Kayıtlarının KozMO v0.2 ile Senkronizasyonu)**, **Faz 2.2 (Derinleştirilmiş Uygarlık Doktrinleri, Rakip Kültler ve Mezhep Savaşları)**, **Faz 2.3 (Başlangıç Arkeolojisi, Harita Görünüm Katmanları `M` ve Başkent Mühür Geometrisi)** ve **Faz 2.4 (Prosedürel Kozmik Ses / Sentezleyici Geri Bildirimi `V` / `♪ Ses`)** simülasyon çekirdeğine ve arayüze eksiksiz uygulanmış ve birim testleriyle doğrulanmıştır.
 
 ---
@@ -28,8 +28,8 @@ pub enum CivilizationDoctrine {
 1. **Çift Kutuplu İnanç Çatışması:**
    - Bir evrende hem baskın ilahın (`dominant_deity`) hem de ikinci sıradaki rakip ilahın nüfuzu **`%25` eşiğini** aşarsa, o evrendeki uygarlıklar iki farklı ilahın kültüne bölünür (`patron_deity` rekabeti).
 2. **Mezhep Savaşı (`ReligiousSchism`):**
-   - Farklı `patron_deity`'ye tapan iki uygarlık aynı evrende bulunduğunda her tur mezhep çatışması olasılığı doğar:
-   - Çatışma çıktığında evrenin **Ruh Havuzu (`soul_reservoir`)** ölümlü kayıplarla hızla dolar, kazanan kültün ilahı **`+%8` anlık nüfuz** kazanırken kaybeden ilah **`-%6` nüfuz** kaybeder ve evren tarihçesine (`UniverseHistoryEntry`) kaydedilir.
+    - Farklı `patron_deity`'ye tapan iki uygarlık aynı evrende bulunduğunda evren/tur eşleşmesine göre her 12 turda bir çatışma çözülür.
+    - Çatışma çıktığında evrenin **Ruh Havuzu (`soul_reservoir`)** `+18` artar; kazanan ilah `+6` nüfuz, kaybeden ilah `-5` nüfuz alır ve olay evren tarihçesine kaydedilir.
 3. **Yeni Oyuncu Etkileşimi / Stratejik Karar:**
    - Sağ denetçide (`Evren` sekmesi) her uygarlığın doktrini (`[Bağnaz Tapınakçılar]`, `[Bilimsel Şüpheciler]` vb.) ve hangi ilahın kültüne bağlı olduğu açıkça gösterilir.
    - `☀ Uygarlığı Aydınlat` ve `Mucize Bahşet` emirleri, rakip külte kapılmış uygarlıkları barışçıl yolla kendi inancınıza döndürür (`patron_deity = Some(PLAYER_DEITY_ID)`).
@@ -82,7 +82,16 @@ Harici ses dosyalarına bağımlı olmadan doğrudan Bevy'nin ses altyapısı (`
 
 1. **Kayıt Uyumluluğu (`#[serde(default)]`):** Yeni eklenen tüm alanlar (`CivilizationDoctrine` vb.) `#[serde(default)]` ile işaretlenerek mevcut `v1` ve `v2` kayıt dosyalarının sorunsuz yüklenmesi korunmuştur.
 2. **Determinizm ve Testler:** `dominion-sim` Bevy'den tamamen bağımsız kalmış; yeni doktrin, mezhep çatışması, arkeoloji ve prosedürel ses sentezleyici mekanikleri için birim/entegrasyon testleri eklenmiştir.
-3. **Kalite Kontrolü:** `cargo fmt --all`, `cargo clippy --offline --workspace --all-targets -- -D warnings` ve `cargo test --offline --workspace` (15/15 test) eksiksiz doğrulanmıştır.
+3. **Kalite Kontrolü:** Son doğrulamada `cargo fmt`, `cargo clippy --workspace --all-targets -- -D warnings` ve `cargo test --workspace` başarıyla tamamlanmıştır (14 test).
+
+---
+
+## Faz 2.5 — Simülasyon sorumluluklarını modüllere ayırma (devam ediyor)
+
+- Tur fazlarının sırası sözleşme olarak belgelenmiştir: evren/uygarlık evrimi → ekonomi → kozmik olaylar → rakip kararları → diplomasi → sonuç değerlendirmesi.
+- Diplomasi süresi güncellemesi ve zafer/yenilgi değerlendirmesi `crates/dominion-sim/src/simulation/endgame.rs` alt modülüne taşınmıştır.
+- Pakt ve mühür haraç gelirinin saf hesabı `crates/dominion-sim/src/simulation/economy.rs` alt modülüne ayrılmıştır. Ekonomi fazının geri kalanı ve diğer fazlar henüz `simulation.rs` içindedir.
+- Bu düzenleme oyun kuralı veya kayıt biçimi değiştirmez. Modüllere ayırırken deterministik tekrar oynatma ve kayıt/yükleme testleri korunur.
 
 ---
 

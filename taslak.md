@@ -1,3 +1,5 @@
+> **Arşiv notu:** Bu dosya ilk tasarım taslağıdır. İçindeki MVP hedefleri ve “bir sonraki adım” bölümü tarihî önerilerdir; uygulanmış güncel kapsam için `REHBER.md`, `TASARIM.md` ve kaynak koduna bakın.
+
 Hocam, bence bu değişiklik oyunun kimliğini daha da netleştiriyor. Avatarı tamamen çıkarıyoruz. Oyuncu hiçbir dünyaya fiziksel olarak inmiyor; her şeyi kozmik ölçekte yöneten, gözlemleyen ve gerektiğinde gerçekliğe müdahale eden bir tanrı.
 
 Böylece kaynaklarımızı iki ayrı oynanış biçimine bölmek yerine, evrenler havuzunu, ruh ekonomisini, uygarlıkları ve tanrılar arası siyaseti gerçekten derinleştirebiliriz.
@@ -308,4 +310,4 @@ Bu sürümde oyunun merkezinde tek bir şey var: Sen bir tanrısın; fakat oyun 
 
 Evrenler senden bağımsız yaşayacak. Rakip tanrılar kendi planlarını yürütecek. Ruhlar kıt bir güç kaynağı olacak. Sen ise bütün bu sistemi kozmik ölçekte gözlemleyip istediğin yerde müdahale edeceksin.
 
-Bir sonraki somut adım, bu belgeyi uygulamaya dönüştürmek için teknik mimariyi ve ilk oynanabilir sürümün dosya yapısını belirlemek. Ondan sonra simülasyon çekirdeğini kurup 60 evrenli, kayıt sistemi olan ve senaryosu tamamlanabilen gerçek bir demo geliştirebiliriz.
+Bu son paragraf ilk taslak yazılırken önerilen sonraki adımdı ve artık güncel görev listesi değildir. Mevcut uygulama Rust workspace'i, Bevy arayüzü, 60 evrenlik simülasyon, kayıt sistemi ve senaryo/sandbox akışını içerir. Simülasyon modülerleştirmesi sürmektedir; mevcut durum `Geliştirme_Yol_Haritası.md` içinde izlenir.

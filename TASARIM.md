@@ -375,3 +375,11 @@ Eternal Dominion'ın görsel kimliği rastgele görsel biriktirerek oluşturulma
 Her yeni çizim, ikon, efekt ve arayüz bileşeni bu belgedeki stil kurallarıyla tutarlı olmalıdır. Tasarım rehberi değiştirilecekse değişiklik bilinçli yapılmalı ve belge güncellenmelidir.
 
 **Hedef:** Özgün, tutarlı, modüler, erişilebilir ve yapay zekâ destekli üretime uygun bir kozmik strateji görsel sistemi.
+
+## 14. Simülasyon mimarisi ve güncelleme sözleşmesi
+
+- `dominion-sim`, Bevy'den bağımsız kalır; görsel katman simülasyon kurallarını sahiplenmez.
+- Sabit adımlı tur sırası korunur: evren/uygarlık evrimi → ekonomi → kozmik olaylar → rakip kararları → diplomasi → zafer/yenilgi değerlendirmesi.
+- Tur sonu diplomasi ve zafer/yenilgi kuralları `crates/dominion-sim/src/simulation/endgame.rs` içindedir. Pakt ve mühür haraç gelirinin hesabı `simulation/economy.rs` içindedir; kalan simülasyon fazları ana `simulation.rs` dosyasındadır.
+- Uzak, gözlenmeyen evrenlerin seyrek güncellenmesi aynı seed için deterministiktir; ancak atlanan adımlar, rastgele olaylar ve sınırlandırılmış/doğrusal olmayan güncellemeler nedeniyle optimizasyon kapalı çalışmayla birebir eşdeğer olduğu garanti edilmez.
+- Bu sorumluluklar ayrıştırılırken güncelleme sırası, kayıt uyumluluğu ve aynı seed ile yeniden oynatma davranışı test edilmelidir.
