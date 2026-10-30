@@ -44,6 +44,8 @@ impl Plugin for CosmicUiPlugin {
                     refresh_bottom_event_log_text,
                     refresh_endgame_modal,
                     refresh_main_menu_overlay,
+                    refresh_gameplay_hud_visibility,
+                    animate_main_menu_entry,
                 ),
             );
     }
@@ -104,11 +106,8 @@ fn theme_btn_palette(theme_idx: usize) -> (Color, Color, Color) {
     }
 }
 
-#[derive(Component, Clone, Copy)]
-struct AnimatedButtonSpec {
-    base_width: f32,
-    hover_expand_px: f32,
-}
+#[derive(Component)]
+struct MainMenuActionButton;
 
 #[derive(Component)]
 struct TutorialBannerContainer;
@@ -168,7 +167,16 @@ struct EndgameModalBodyText;
 struct MainMenuOverlay;
 
 #[derive(Component)]
+struct MainMenuIntroPanel;
+
+#[derive(Component)]
+struct GameplayHudLayer;
+
+#[derive(Component)]
 struct MainMenuDeityNameText;
+
+#[derive(Component)]
+struct MainMenuScenarioText;
 
 #[derive(Component)]
 struct MainMenuSettingsContainer;
@@ -271,6 +279,7 @@ fn setup_cosmic_ui(mut commands: Commands) {
         .with_children(|root| {
             // ==================== 1. TOP BAR (Görsel Kaynak Kartları, İlah Kimliği ve Zaman Kontrolü) ====================
             root.spawn((
+                GameplayHudLayer,
                 Node {
                     width: percent(100),
                     height: px(56),
@@ -369,6 +378,7 @@ fn setup_cosmic_ui(mut commands: Commands) {
 
             // ==================== 2. MIDDLE ROW (SOL HAVUZ + HARİTA + SAĞ DENETÇİ) ====================
             root.spawn((
+                GameplayHudLayer,
                 Node {
                     width: percent(100),
                     flex_grow: 1.0,
@@ -1116,6 +1126,7 @@ fn setup_cosmic_ui(mut commands: Commands) {
 
             // ==================== 3. BOTTOM EVENT LOG & STATUS BAR ====================
             root.spawn((
+                GameplayHudLayer,
                 Node {
                     width: percent(100),
                     height: px(90),
@@ -1138,7 +1149,7 @@ fn setup_cosmic_ui(mut commands: Commands) {
                 ));
             });
 
-            // ==================== 4. FULL-SCREEN ANIMATED MAIN MENU OVERLAY ====================
+            // ==================== 4. FULL-SCREEN COSMIC MAIN MENU ====================
             root.spawn((
                 MainMenuOverlay,
                 Node {
@@ -1147,212 +1158,273 @@ fn setup_cosmic_ui(mut commands: Commands) {
                     top: px(0),
                     width: percent(100),
                     height: percent(100),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+                    align_items: AlignItems::FlexStart,
                     ..default()
                 },
                 ZIndex(60),
-                BackgroundColor(COL_BG_VOID.with_alpha(0.92)),
+                BackgroundColor(COL_BG_VOID.with_alpha(0.0)),
             ))
             .with_children(|overlay| {
                 overlay
                     .spawn((
+                        MainMenuIntroPanel,
+                        UiTransform::IDENTITY,
                         Node {
-                            width: px(510),
-                            padding: UiRect::all(px(22)),
-                            border: UiRect::all(px(2)),
-                            border_radius: BorderRadius::all(px(12)),
+                            position_type: PositionType::Absolute,
+                            left: px(0),
+                            top: px(0),
+                            width: px(420),
+                            min_width: px(320),
+                            max_width: percent(46),
+                            height: percent(100),
                             flex_direction: FlexDirection::Column,
-                            align_items: AlignItems::Center,
-                            row_gap: px(12),
+                            border: UiRect::right(px(1)),
                             ..default()
                         },
-                        BackgroundColor(COL_BG_DEEP.with_alpha(0.98)),
-                        BorderColor::all(COL_ACCENT_GOLD),
+                        BackgroundColor(COL_BG_DEEP.with_alpha(0.96)),
+                        BorderColor::all(COL_ACCENT_GOLD.with_alpha(0.28)),
                     ))
-                    .with_children(|card| {
-                        // Game Title & Subtitle
-                        card.spawn((
-                            Text::new("✦ KozMO ✦"),
-                            TextFont {
-                                font_size: FontSize::Px(22.0),
-                                ..default()
-                            },
-                            TextColor(COL_ACCENT_GOLD),
-                        ));
-                        card.spawn((
-                            Text::new("KOZMİK SANDBOX STRATEJİ · 60 EVREN · 9 İLAH"),
-                            TextFont {
-                                font_size: FontSize::Px(11.0),
-                                ..default()
-                            },
-                            TextColor(COL_ACCENT_TURQUOISE),
-                        ));
-
-                        // Player Deity Name Input & Randomizer Box
-                        card.spawn((
-                            Node {
-                                width: percent(100),
-                                padding: UiRect::all(px(10)),
-                                border: UiRect::all(px(1)),
-                                border_radius: BorderRadius::all(px(8)),
-                                flex_direction: FlexDirection::Column,
-                                align_items: AlignItems::Center,
-                                row_gap: px(6),
-                                ..default()
-                            },
-                            BackgroundColor(COL_BG_PANEL),
-                            BorderColor::all(COL_ACCENT_PURPLE.with_alpha(0.70)),
-                        ))
-                        .with_children(|name_box| {
-                            name_box.spawn((
-                                MainMenuDeityNameText,
-                                Text::new("♛ İLAH ADIN: Aethelgard|"),
-                                TextFont {
-                                    font_size: FontSize::Px(13.5),
-                                    ..default()
-                                },
-                                TextColor(COL_TEXT_PRIMARY),
-                            ));
-                            name_box.spawn((
-                                Text::new(
-                                    "Klavyeden harf yazarak (Backspace ile silerek) veya alttaki butonla ilah adını belirle:",
-                                ),
-                                TextFont {
-                                    font_size: FontSize::Px(9.8),
-                                    ..default()
-                                },
-                                TextColor(COL_TEXT_SECONDARY),
-                            ));
-                            spawn_action_btn(
-                                name_box,
-                                "↻ Rastgele Kozmik İlah Adı Seç",
-                                UiAction::CycleRandomDeityName,
-                                260.0,
-                            );
-                        });
-
-                        // Vertical Top-to-Bottom Animated Main Menu Buttons:
-                        // 1. YENİ OYUN
-                        // 2. AYARLAR
-                        // 3. ÇIKIŞ
-                        // (+ Mevcut Kozmosa Dön)
-                        card.spawn(Node {
-                            width: percent(100),
-                            flex_direction: FlexDirection::Column,
-                            align_items: AlignItems::Center,
-                            row_gap: px(8),
-                            ..default()
-                        })
-                        .with_children(|v_menu| {
-                            spawn_main_menu_btn(
-                                v_menu,
-                                "✦ YENİ OYUN BAŞLAT",
-                                UiAction::MainMenuStartNewGame,
-                                390.0,
-                            );
-                            spawn_main_menu_btn(
-                                v_menu,
-                                "⚙ AYARLAR",
-                                UiAction::ToggleMainMenuSettings,
-                                390.0,
-                            );
-                            spawn_main_menu_btn(
-                                v_menu,
-                                "✖ ÇIKIŞ",
-                                UiAction::ExitGame,
-                                390.0,
-                            );
-                            spawn_action_btn(
-                                v_menu,
-                                "▶ Mevcut Kozmosa Dön / Devam Et (Esc)",
-                                UiAction::ToggleMainMenu,
-                                310.0,
-                            );
-                        });
-
-                        // Collapsible Settings Sub-Panel inside Main Menu
-                        card.spawn((
-                            MainMenuSettingsContainer,
-                            Node {
-                                width: percent(100),
-                                padding: UiRect::all(px(10)),
-                                border: UiRect::all(px(1)),
-                                border_radius: BorderRadius::all(px(8)),
-                                display: Display::None,
-                                flex_direction: FlexDirection::Column,
-                                row_gap: px(6),
-                                ..default()
-                            },
-                            BackgroundColor(COL_BG_PANEL),
-                            BorderColor::all(COL_ACCENT_TURQUOISE.with_alpha(0.65)),
-                        ))
-                        .with_children(|s_box| {
-                            s_box.spawn((
-                                MainMenuSettingsText,
-                                Text::new("Ayarlar yükleniyor..."),
-                                TextFont {
-                                    font_size: FontSize::Px(10.5),
-                                    ..default()
-                                },
-                                TextColor(COL_TEXT_PRIMARY),
-                            ));
-
-                            s_box
-                                .spawn(Node {
+                    .with_children(|surface| {
+                        // Keep the rail focused on the current identity, scenario, and actions.
+                        surface
+                            .spawn((
+                                Node {
                                     width: percent(100),
-                                    flex_direction: FlexDirection::Row,
-                                    flex_wrap: FlexWrap::Wrap,
-                                    column_gap: px(5),
-                                    row_gap: px(4),
-                                    justify_content: JustifyContent::Center,
+                                    height: percent(100),
+                                    padding: UiRect::axes(px(30), px(26)),
+                                    flex_direction: FlexDirection::Column,
+                                    justify_content: JustifyContent::FlexStart,
+                                    align_items: AlignItems::FlexStart,
+                                    row_gap: px(15),
+                                    ..default()
+                                },
+                                BackgroundColor(COL_BG_DEEP.with_alpha(0.0)),
+                                BorderColor::all(COL_ACCENT_GOLD.with_alpha(0.0)),
+                            ))
+                            .with_children(|menu| {
+                                menu.spawn(Node {
+                                    width: percent(100),
+                                    flex_direction: FlexDirection::Column,
+                                    align_items: AlignItems::FlexStart,
+                                    row_gap: px(5),
                                     ..default()
                                 })
-                                .with_children(|s_btns| {
-                                    spawn_action_btn(
-                                        s_btns,
-                                        "Senaryo 1: Dengeli Yükseliş",
-                                        UiAction::StartScenario(0),
-                                        142.0,
-                                    );
-                                    spawn_action_btn(
-                                        s_btns,
-                                        "Senaryo 2: Büyük Üstat (Zor)",
-                                        UiAction::StartScenario(1),
-                                        142.0,
-                                    );
-                                    spawn_action_btn(
-                                        s_btns,
-                                        "Senaryo 3: Sonsuz Sandbox",
-                                        UiAction::StartScenario(2),
-                                        142.0,
-                                    );
-                                    spawn_action_btn(
-                                        s_btns,
-                                        "Tehlike Sembolleri (▲) Aç/Kapat",
-                                        UiAction::ToggleHighContrastSymbols,
-                                        142.0,
-                                    );
-                                    spawn_action_btn(
-                                        s_btns,
-                                        "Uzak Evren Optimizasyonu",
-                                        UiAction::ToggleBackgroundOptimization,
-                                        142.0,
-                                    );
-                                    spawn_action_btn(
-                                        s_btns,
-                                        "❖ Tema Değiştir (T)",
-                                        UiAction::CycleUiTheme,
-                                        142.0,
-                                    );
-                                    spawn_action_btn(
-                                        s_btns,
-                                        "♪ Ses Aç/Kapat (V)",
-                                        UiAction::ToggleAudio,
-                                        142.0,
+                                .with_children(|heading| {
+                                    heading.spawn((
+                                        Text::new("KozMO"),
+                                        TextFont {
+                                            font_size: FontSize::Px(30.0),
+                                            ..default()
+                                        },
+                                        TextColor(COL_TEXT_PRIMARY),
+                                    ));
+                                    heading.spawn((
+                                        Text::new("ETERNAL DOMINION"),
+                                        TextFont {
+                                            font_size: FontSize::Px(9.5),
+                                            ..default()
+                                        },
+                                        TextColor(COL_ACCENT_GOLD.with_alpha(0.82)),
+                                    ));
+                                });
+
+                                menu.spawn((
+                                    Node {
+                                        width: percent(100),
+                                        border: UiRect::bottom(px(1)),
+                                        flex_direction: FlexDirection::Column,
+                                        align_items: AlignItems::FlexStart,
+                                        row_gap: px(5),
+                                        ..default()
+                                    },
+                                    BackgroundColor(COL_BG_DEEP.with_alpha(0.0)),
+                                    BorderColor::all(COL_TEXT_SECONDARY.with_alpha(0.18)),
+                                ))
+                                .with_children(|name_box| {
+                                    name_box.spawn((
+                                        Text::new("İLAH KİMLİĞİN"),
+                                        TextFont {
+                                            font_size: FontSize::Px(9.0),
+                                            ..default()
+                                        },
+                                        TextColor(COL_ACCENT_GOLD),
+                                    ));
+                                    name_box.spawn((
+                                        MainMenuDeityNameText,
+                                        Text::new("♛  Aethelgard"),
+                                        TextFont {
+                                            font_size: FontSize::Px(16.0),
+                                            ..default()
+                                        },
+                                        TextColor(COL_TEXT_PRIMARY),
+                                    ));
+                                    name_box.spawn((
+                                        Text::new("Klavye: A–Z · Backspace ile sil"),
+                                        TextFont {
+                                            font_size: FontSize::Px(9.0),
+                                            ..default()
+                                        },
+                                        TextColor(COL_TEXT_SECONDARY),
+                                    ));
+                                    spawn_main_menu_btn(
+                                        name_box,
+                                        "Rastgele ilah adı",
+                                        UiAction::CycleRandomDeityName,
+                                        240.0,
                                     );
                                 });
-                        });
+
+                                menu.spawn(Node {
+                                    width: percent(100),
+                                    flex_direction: FlexDirection::Column,
+                                    row_gap: px(5),
+                                    ..default()
+                                })
+                                .with_children(|scenario| {
+                                    scenario.spawn((
+                                        Text::new("BAŞLANGIÇ SENARYOSU"),
+                                        TextFont {
+                                            font_size: FontSize::Px(9.0),
+                                            ..default()
+                                        },
+                                        TextColor(COL_TEXT_SECONDARY),
+                                    ));
+                                    scenario.spawn((
+                                        MainMenuScenarioText,
+                                        Text::new("Kozmik Yükseliş (Ana Senaryo)"),
+                                        TextFont {
+                                            font_size: FontSize::Px(11.0),
+                                            ..default()
+                                        },
+                                        TextColor(COL_TEXT_PRIMARY),
+                                    ));
+                                });
+
+                                menu.spawn(Node {
+                                    width: percent(100),
+                                    flex_direction: FlexDirection::Column,
+                                    align_items: AlignItems::FlexStart,
+                                    row_gap: px(4),
+                                    ..default()
+                                })
+                                .with_children(|v_menu| {
+                                    spawn_main_menu_btn(
+                                        v_menu,
+                                        "YENİ OYUN BAŞLAT",
+                                        UiAction::MainMenuStartNewGame,
+                                        300.0,
+                                    );
+                                    spawn_main_menu_btn(
+                                        v_menu,
+                                        "KOZMOSA DÖN  ·  ESC",
+                                        UiAction::ToggleMainMenu,
+                                        300.0,
+                                    );
+                                    spawn_main_menu_btn(
+                                        v_menu,
+                                        "SENARYO VE AYARLAR",
+                                        UiAction::ToggleMainMenuSettings,
+                                        300.0,
+                                    );
+                                    spawn_main_menu_btn(
+                                        v_menu,
+                                        "ÇIKIŞ",
+                                        UiAction::ExitGame,
+                                        300.0,
+                                    );
+                                });
+
+                                // Collapsible scenario and accessibility settings remain in-menu.
+                                menu.spawn((
+                                    MainMenuSettingsContainer,
+                                    Node {
+                                        width: percent(100),
+                                        padding: UiRect::axes(px(10), px(8)),
+                                        border: UiRect::left(px(1)),
+                                        display: Display::None,
+                                        flex_direction: FlexDirection::Column,
+                                        row_gap: px(6),
+                                        ..default()
+                                    },
+                                    BackgroundColor(COL_BG_PANEL.with_alpha(0.42)),
+                                    BorderColor::all(COL_ACCENT_GOLD.with_alpha(0.42)),
+                                ))
+                                .with_children(|s_box| {
+                                    s_box.spawn((
+                                        MainMenuSettingsText,
+                                        Text::new("Ayarlar yükleniyor..."),
+                                        TextFont {
+                                            font_size: FontSize::Px(10.5),
+                                            ..default()
+                                        },
+                                        TextColor(COL_TEXT_PRIMARY),
+                                    ));
+
+                                    s_box
+                                        .spawn(Node {
+                                            width: percent(100),
+                                            flex_direction: FlexDirection::Row,
+                                            flex_wrap: FlexWrap::Wrap,
+                                            column_gap: px(5),
+                                            row_gap: px(4),
+                                            justify_content: JustifyContent::Center,
+                                            ..default()
+                                        })
+                                        .with_children(|s_btns| {
+                                            spawn_action_btn(
+                                                s_btns,
+                                                "Senaryo 1: Dengeli Yükseliş",
+                                                UiAction::StartScenario(0),
+                                                142.0,
+                                            );
+                                            spawn_action_btn(
+                                                s_btns,
+                                                "Senaryo 2: Büyük Üstat (Zor)",
+                                                UiAction::StartScenario(1),
+                                                142.0,
+                                            );
+                                            spawn_action_btn(
+                                                s_btns,
+                                                "Senaryo 3: Sonsuz Sandbox",
+                                                UiAction::StartScenario(2),
+                                                142.0,
+                                            );
+                                            spawn_action_btn(
+                                                s_btns,
+                                                "Tehlike Sembolleri (▲) Aç/Kapat",
+                                                UiAction::ToggleHighContrastSymbols,
+                                                142.0,
+                                            );
+                                            spawn_action_btn(
+                                                s_btns,
+                                                "Uzak Evren Optimizasyonu",
+                                                UiAction::ToggleBackgroundOptimization,
+                                                142.0,
+                                            );
+                                            spawn_action_btn(
+                                                s_btns,
+                                                "Tema Değiştir (T)",
+                                                UiAction::CycleUiTheme,
+                                                142.0,
+                                            );
+                                            spawn_action_btn(
+                                                s_btns,
+                                                "♪ Ses Aç/Kapat (V)",
+                                                UiAction::ToggleAudio,
+                                                142.0,
+                                            );
+                                        });
+                                });
+
+                                menu.spawn((
+                                    Text::new("ESC  ·  HARİTAYA DÖN"),
+                                    TextFont {
+                                        font_size: FontSize::Px(8.5),
+                                        ..default()
+                                    },
+                                    TextColor(COL_TEXT_SECONDARY.with_alpha(0.8)),
+                                ));
+                            });
                     });
             });
 
@@ -1515,28 +1587,24 @@ fn spawn_main_menu_btn(
             Button,
             Hovered::default(),
             action,
-            AnimatedButtonSpec {
-                base_width: width_px,
-                hover_expand_px: 14.0,
-            },
+            MainMenuActionButton,
             Node {
                 width: px(width_px),
-                height: px(36),
-                padding: UiRect::axes(px(14), px(6)),
-                border: UiRect::all(px(2)),
-                border_radius: BorderRadius::all(px(7)),
-                justify_content: JustifyContent::Center,
+                height: px(38),
+                padding: UiRect::axes(px(10), px(5)),
+                border: UiRect::bottom(px(1)),
+                justify_content: JustifyContent::FlexStart,
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(COL_BTN_ACTIVE),
-            BorderColor::all(COL_ACCENT_GOLD.with_alpha(0.85)),
+            BackgroundColor(COL_BG_PANEL.with_alpha(0.16)),
+            BorderColor::all(COL_TEXT_SECONDARY.with_alpha(0.18)),
         ))
         .with_children(|btn| {
             btn.spawn((
                 Text::new(label),
                 TextFont {
-                    font_size: FontSize::Px(13.0),
+                    font_size: FontSize::Px(11.5),
                     ..default()
                 },
                 TextColor(COL_TEXT_PRIMARY),
@@ -2486,8 +2554,7 @@ type ButtonVisualQuery<'a> = (
     Has<Pressed>,
     Option<&'a UiAction>,
     Option<&'a LeftQuickSlotButton>,
-    Option<&'a AnimatedButtonSpec>,
-    &'a mut Node,
+    Option<&'a MainMenuActionButton>,
     &'a mut BackgroundColor,
     &'a mut BorderColor,
 );
@@ -2500,12 +2567,11 @@ fn update_button_visuals(
 ) {
     let dt = time.delta_secs();
     let blend = (dt * 14.0).min(1.0);
-    let ui_pulse = (runtime.ui_anim_time * 3.0).sin() * 0.5 + 0.5;
     let (theme_normal_bg, theme_active_bg, theme_normal_border) =
         theme_btn_palette(runtime.ui_theme_index);
     let filtered = pool_cache.get(&runtime);
 
-    for (hovered, pressed, action_opt, slot_opt, anim_spec_opt, mut node, mut bg, mut border) in
+    for (hovered, pressed, action_opt, slot_opt, menu_action_opt, mut bg, mut border) in
         &mut q_buttons
     {
         let is_active_toggle =
@@ -2514,35 +2580,13 @@ fn update_button_visuals(
             action_opt.is_some_and(|act| is_ui_action_sovereign_locked(act, &runtime));
         let is_affordable = action_opt.is_none_or(|act| can_afford_ui_action(act, &runtime));
 
-        // Only Main Menu hero buttons (`AnimatedButtonSpec`) animate their width on hover/press;
-        // regular UI buttons never mutate `Node::width` so layout never shifts or jitters!
-        if let Some(spec) = anim_spec_opt {
-            let target_w = if pressed {
-                (spec.base_width - 2.0).max(20.0)
-            } else if hovered.get() {
-                spec.base_width + spec.hover_expand_px
-            } else {
-                spec.base_width
-            };
-            let cur_w = match node.width {
-                Val::Px(v) => v,
-                _ => spec.base_width,
-            };
-            let next_w = cur_w + (target_w - cur_w) * blend;
-            if (next_w - cur_w).abs() > 0.15 {
-                node.width = px(next_w);
-            } else if (cur_w - target_w).abs() > 0.01 {
-                node.width = px(target_w);
-            }
-        }
-
         // Check if this button is a universe quick-slot button
         let slot_highlight = slot_opt.and_then(|s| {
             let abs_idx = runtime.pool_page * POOL_SLOTS_PER_PAGE + s.0;
             filtered.get(abs_idx).copied()
         });
 
-        let is_hero = anim_spec_opt.is_some();
+        let is_main_menu_action = menu_action_opt.is_some();
 
         let (target_bg, target_border) = if is_sovereign_locked {
             (
@@ -2552,19 +2596,34 @@ fn update_button_visuals(
         } else if pressed {
             (COL_BTN_PRESSED, COL_ACCENT_GOLD)
         } else if hovered.get() {
-            (
-                COL_BTN_HOVER,
-                if is_hero {
-                    lerp_color(COL_ACCENT_TURQUOISE, COL_ACCENT_GOLD, ui_pulse * 0.65)
-                } else {
-                    COL_ACCENT_TURQUOISE
-                },
-            )
-        } else if is_hero {
-            (
-                COL_BTN_ACTIVE,
-                lerp_color(COL_ACCENT_GOLD, COL_ACCENT_PURPLE, ui_pulse * 0.45),
-            )
+            if is_main_menu_action {
+                let hover_border = match action_opt {
+                    Some(UiAction::MainMenuStartNewGame) => COL_ACCENT_GOLD,
+                    Some(UiAction::ExitGame) => COL_ACCENT_CRIMSON,
+                    _ => COL_ACCENT_TURQUOISE,
+                };
+                (COL_BG_PANEL.with_alpha(0.68), hover_border)
+            } else {
+                (COL_BTN_HOVER, COL_ACCENT_TURQUOISE)
+            }
+        } else if is_main_menu_action {
+            let hero_background = match action_opt {
+                Some(UiAction::MainMenuStartNewGame) => COL_ACCENT_GOLD.with_alpha(0.12),
+                Some(UiAction::ToggleMainMenuSettings) if runtime.main_menu_settings_open => {
+                    COL_BG_PANEL.with_alpha(0.58)
+                }
+                _ => COL_BG_PANEL.with_alpha(0.14),
+            };
+            let hero_border = match action_opt {
+                Some(UiAction::MainMenuStartNewGame) => COL_ACCENT_GOLD.with_alpha(0.68),
+                Some(UiAction::ToggleMainMenu) => COL_ACCENT_TURQUOISE.with_alpha(0.48),
+                Some(UiAction::ToggleMainMenuSettings) if runtime.main_menu_settings_open => {
+                    COL_ACCENT_GOLD.with_alpha(0.62)
+                }
+                Some(UiAction::ExitGame) => COL_ACCENT_CRIMSON.with_alpha(0.26),
+                _ => COL_TEXT_SECONDARY.with_alpha(0.18),
+            };
+            (hero_background, hero_border)
         } else if let Some(u_id) = slot_highlight {
             let u = &runtime.sim.universes[u_id as usize];
             let is_sel = u_id == runtime.selected_universe_id;
@@ -3667,9 +3726,23 @@ fn refresh_endgame_modal(
     }
 }
 
-type MainMenuDeityNameFilter = (With<MainMenuDeityNameText>, Without<MainMenuSettingsText>);
+type MainMenuDeityNameFilter = (
+    With<MainMenuDeityNameText>,
+    Without<MainMenuSettingsText>,
+    Without<MainMenuScenarioText>,
+);
 
-type MainMenuSettingsTextFilter = (With<MainMenuSettingsText>, Without<MainMenuDeityNameText>);
+type MainMenuSettingsTextFilter = (
+    With<MainMenuSettingsText>,
+    Without<MainMenuDeityNameText>,
+    Without<MainMenuScenarioText>,
+);
+
+type MainMenuScenarioTextFilter = (
+    With<MainMenuScenarioText>,
+    Without<MainMenuDeityNameText>,
+    Without<MainMenuSettingsText>,
+);
 
 fn refresh_main_menu_overlay(
     runtime: Res<GameRuntimeState>,
@@ -3680,6 +3753,7 @@ fn refresh_main_menu_overlay(
     >,
     mut q_name_text: Single<&mut Text, MainMenuDeityNameFilter>,
     mut q_settings_text: Single<&mut Text, MainMenuSettingsTextFilter>,
+    mut q_scenario_text: Single<&mut Text, MainMenuScenarioTextFilter>,
 ) {
     let target_overlay_disp = if runtime.show_main_menu {
         Display::Flex
@@ -3708,15 +3782,16 @@ fn refresh_main_menu_overlay(
     } else {
         &runtime.player_name_input
     };
-    set_text_if_changed(
-        &mut q_name_text,
-        format!("♛ İLAH ADIN (OYUNCU KİMLİĞİ): [ {} ]", shown_name),
-    );
+    set_text_if_changed(&mut q_name_text, format!("♛  {}", shown_name));
 
     let scenarios = built_in_scenarios();
     let cur_scen = &scenarios[runtime
         .active_scenario_index
         .min(scenarios.len().saturating_sub(1))];
+    set_text_if_changed(
+        &mut q_scenario_text,
+        format!("{}\n{}", cur_scen.title_tr, cur_scen.subtitle_tr),
+    );
     set_text_if_changed(
         &mut q_settings_text,
         format!(
@@ -3749,6 +3824,71 @@ fn refresh_main_menu_overlay(
 }
 
 #[derive(Default)]
+struct MainMenuEntryTransition {
+    was_open: bool,
+    elapsed_secs: f32,
+}
+
+type MainMenuPanelComponents<'a> = (&'a mut UiTransform, &'a mut BackgroundColor);
+type MainMenuPanelFilter = (With<MainMenuIntroPanel>, Without<MainMenuOverlay>);
+
+fn refresh_gameplay_hud_visibility(
+    runtime: Res<GameRuntimeState>,
+    mut q_hud: Query<&mut Node, With<GameplayHudLayer>>,
+) {
+    let display = if runtime.show_main_menu {
+        Display::None
+    } else {
+        Display::Flex
+    };
+
+    for mut node in &mut q_hud {
+        if node.display != display {
+            node.display = display;
+        }
+    }
+}
+
+fn animate_main_menu_entry(
+    time: Res<Time>,
+    runtime: Res<GameRuntimeState>,
+    mut transition: Local<MainMenuEntryTransition>,
+    mut q_overlay: Single<
+        &mut BackgroundColor,
+        (With<MainMenuOverlay>, Without<MainMenuIntroPanel>),
+    >,
+    q_panel: Single<MainMenuPanelComponents<'_>, MainMenuPanelFilter>,
+) {
+    if transition.was_open != runtime.show_main_menu {
+        transition.was_open = runtime.show_main_menu;
+        transition.elapsed_secs = 0.0;
+    }
+
+    if runtime.show_main_menu {
+        transition.elapsed_secs = (transition.elapsed_secs + time.delta_secs()).min(0.24);
+    }
+
+    let progress = (transition.elapsed_secs / 0.24).clamp(0.0, 1.0);
+    let eased = 1.0 - (1.0 - progress).powi(3);
+    let (mut transform, mut panel_background) = q_panel.into_inner();
+    transform.translation.x = px(if runtime.show_main_menu {
+        -14.0 * (1.0 - eased)
+    } else {
+        -14.0
+    });
+    panel_background.0 = COL_BG_DEEP.with_alpha(if runtime.show_main_menu {
+        0.96 * eased
+    } else {
+        0.0
+    });
+    q_overlay.0 = COL_BG_VOID.with_alpha(if runtime.show_main_menu {
+        0.46 * eased
+    } else {
+        0.0
+    });
+}
+
+#[derive(Default)]
 struct HoverTooltipTracker {
     hovered_entity: Option<Entity>,
     elapsed_secs: f32,
@@ -3770,6 +3910,15 @@ fn refresh_button_hover_tooltip(
     mut q_overlay: Single<&mut Node, With<ButtonHoverTooltipOverlay>>,
     mut q_text: Single<&mut Text, With<ButtonHoverTooltipText>>,
 ) {
+    if runtime.show_main_menu {
+        tracker.hovered_entity = None;
+        tracker.elapsed_secs = 0.0;
+        if q_overlay.display != Display::None {
+            q_overlay.display = Display::None;
+        }
+        return;
+    }
+
     let mut active_hover: Option<(Entity, Option<UiAction>, Option<usize>)> = None;
     for (ent, hovered, action_opt, slot_opt) in &q_buttons {
         if hovered.get() {

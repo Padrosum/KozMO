@@ -204,13 +204,11 @@ Harita mümkün olduğunca Bevy'nin çizim araçları, sprite'lar ve shader'lar�
 ## 7. Kullanıcı arayüzü
 
 Arayüz bilgi yoğunluğunu korurken sade ve görsel açıdan okunabilir kalmalıdır:
-- **Kozmik Ana Menü (`MainMenuOverlay` - `Esc` / `☰ Ana Menü`)**:
-  - Oyuncunun kendi **İlah Adını** klavyeden doğrudan yazabildiği veya `🎲 Rastgele Kozmik İlah Adı Seç` ile belirleyebildiği giriş alanı,
-  - Yukarıdan aşağıya sıralı ve üzerine gelindiğinde yumuşakça genişleyip altın/mor çerçeveyle parlayan (`AnimatedButtonSpec`) 3 ana menü butonu:
-    1. **`✦ YENİ OYUN BAŞLAT`**
-    2. **`⚙ AYARLAR`** (Oyun modu, yüksek kontrastlı tehlike sembolleri ve arka plan simülasyon optimizasyonu ayarları)
-    3. **`✖ ÇIKIŞ`**
-  - Ayrıca aktif oyuna dönmek için **`▶ Mevcut Kozmosa Dön / Devam Et (Esc)`** butonu.
+- **Ana Menü (`MainMenuOverlay` - `Esc` / `☰ Ana Menü`)**:
+  - Sol kenarda tek, tam yükseklikte bir menü şeridi; sağda oyunun kendi kozmik haritası. Menü açıkken HUD katmanları gizlenir, böylece harita dekor değil gerçek oyun sahnesi olarak görünür.
+  - Süs amaçlı sayaçlar, rastgele yıldız noktaları, dönen geometrik logo ve slogan kullanılmaz. Bunun yerine gerçekten seçili olan başlangıç senaryosu ve oyuncunun ilah adı gösterilir.
+  - İsim klavyeden düzenlenebilir veya rastgele seçilebilir. Eylemler: **Yeni Oyun Başlat**, **Kozmosa Dön (Esc)**, **Senaryo ve Ayarlar**, **Çıkış**. Ayarlar senaryo, erişilebilirlik, tema ve ses kontrollerini korur.
+  - Yalnızca açılışta kısa bir kayma/sönme geçişi vardır; sürekli parıltı veya dikkat dağıtan döngü animasyonu yoktur. Butonlarda sabit ölçü ve hafif hover geri bildirimi kullanılır.
 - **Üst Bölüm (Görsel Kaynak Kartları ve İlah Kimliği)**: Oyuncunun seçtiği `👑 [İlah Adı] · Tur/Hız`, `◆ Ruh` (`#9B7BFF`), `👑 Nüfuz` (`#E5C77A`), `✦ Kozmik Öz` (`#5ED6C1`), `★ Aidiyet & Ritüel` bilgileri ve `☰ Ana Menü` erişimi renk kodlu bağımsız kartlarda gösterilir.
 - **Sol Panel (60 Evrenlik Sayfalı Havuz ve Aidiyet Filtreleri)**:
   - Sahiplik ve durum filtreleri (`Tümü`, `★ Tam`, `◆ Bizim`, `⚔ Rakip`, `▲ Tehlike`, `? Keşif`),

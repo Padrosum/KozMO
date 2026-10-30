@@ -11,7 +11,7 @@
 **KozMO**, oyuncuyu 60 bağımsız evrenin, ölümlü uygarlıkların, boyutsal geçitlerin ve 8 rakip ilahın üzerinde hüküm süren bir kozmik varlık konumuna yerleştirir. Bu nedenle arayüz; sıradan bir tablo/menü görünümü yerine **"İlahi Gözlemevi ve Kozmik Usturlap (Celestial Astrolabe)"** hissiyatı vermelidir:
 
 1. **Harita Merkezli Hiyerarşi (%70 Görsel Alan):** Ortadaki interaktif 60 evrenlik kozmik ağ her zaman sahnenin yıldızı olmalı; yan paneller yarı saydam derin uzay camı (*Obsidian Glass*) dokusuyla haritayı çerçevelemelidir.
-2. **Sıfır Kayma / Sıfır Titreme (Zero-Jitter Ergonomisi):** Metin uzunluğu veya tur değişimi hiçbir zaman butonların yerini kaydırmamalı; yalnızca Ana Menü kahraman butonları ve harita üzerindeki kozmik efektler akıcı şekilde nefes almalıdır.
+2. **Sıfır Kayma / Sıfır Titreme (Zero-Jitter Ergonomisi):** Metin uzunluğu veya tur değişimi hiçbir zaman butonların yerini kaydırmamalı; ana menüde sabit ölçülü eylemler, kısa giriş geçişi ve gerektiğinde haritadaki kozmik efektler kullanılmalıdır.
 3. **2 Saniye Beklemeli Akıllı İpucu (Hover Tooltip) & Entegre Wiki:** Oyuncu herhangi bir interaktif butonun üzerinde ~2 saniye durduğunda, o emrin maliyetini, hâkimiyet şartını ve stratejik etkisini anlatan yüzer bilgi kartı açılmalıdır.
 
 ---
