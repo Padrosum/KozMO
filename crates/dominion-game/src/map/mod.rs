@@ -45,11 +45,22 @@ impl Plugin for CosmicMapPlugin {
     }
 }
 
-fn setup_cosmic_map_camera(mut commands: Commands, runtime: Res<GameRuntimeState>) {
+fn setup_cosmic_map_camera(
+    mut commands: Commands,
+    runtime: Res<GameRuntimeState>,
+    asset_server: Res<AssetServer>,
+) {
     commands.spawn((
         Camera2d,
         CosmicMapCamera,
         Transform::from_xyz(0.0, 0.0, 0.0),
+    ));
+
+    // A transparent, pre-rendered nebula layer gives the map real background color
+    // while leaving the theme-dependent clear color visible through the empty areas.
+    commands.spawn((
+        Sprite::from_image(asset_server.load("art/backgrounds/cosmic_nebula.png")),
+        Transform::from_xyz(0.0, 0.0, -100.0),
     ));
 
     for u in &runtime.sim.universes {
@@ -580,26 +591,58 @@ fn draw_cosmic_map_gizmos(mut gizmos: Gizmos, runtime: Res<GameRuntimeState>) {
     let col_text_primary = Color::srgb_u8(0xF8, 0xF3, 0xE6);
     let col_text_secondary = Color::srgb_u8(0xB9, 0xAD, 0xD2);
 
-    // 1. Concentric Cosmic Ring Guides & subtle background star dots
+    // 1. Concentric cosmic ring guides and a deterministic, softly twinkling starfield.
     for &radius in &[130.0f32, 265.0, 405.0, 545.0] {
         gizmos
             .circle_2d(
                 Isometry2d::IDENTITY,
                 radius,
-                col_panel_line.with_alpha(0.45),
+                col_panel_line.with_alpha(0.27),
             )
             .resolution(96);
     }
 
-    for i in 0..48 {
-        let angle = (i as f32) * 1.618 * TAU + t * 0.01;
-        let r = 60.0 + ((i * 37) % 540) as f32;
-        let star_pos = Vec2::new(angle.cos() * r, angle.sin() * r);
+    // Integer hashing keeps the star positions stable across frames and save replays.
+    for i in 0..220u32 {
+        let mut hash = i.wrapping_add(0x9E37_79B9);
+        hash ^= hash >> 16;
+        hash = hash.wrapping_mul(0x7FEB_352D);
+        hash ^= hash >> 15;
+        hash = hash.wrapping_mul(0x846C_A68B);
+        hash ^= hash >> 16;
+        let angle = (hash as f32 / u32::MAX as f32) * TAU;
+        let radius_hash = hash.rotate_left(13);
+        let radius = 34.0 + (radius_hash % 625) as f32;
+        let star_pos = Vec2::new(angle.cos() * radius, angle.sin() * radius);
+        let size = 0.45 + ((hash >> 8) % 100) as f32 / 100.0;
+        let phase = ((hash >> 16) % 628) as f32 / 100.0;
+        let twinkle = 0.72 + (t * 0.7 + phase).sin().abs() * 0.28;
+        let star_color = match i % 17 {
+            0 => col_gold,
+            1..=3 => col_turquoise,
+            _ => col_text_secondary,
+        };
         gizmos.circle_2d(
             Isometry2d::from_translation(star_pos),
-            1.4,
-            col_text_secondary.with_alpha(0.22),
+            size,
+            star_color.with_alpha((0.16 + size * 0.22) * twinkle),
         );
+
+        // Sparse four-point glints add a little scale without turning the map noisy.
+        if i % 29 == 0 {
+            let glint = 2.0 + size;
+            let glint_color = star_color.with_alpha(0.28 * twinkle);
+            gizmos.line_2d(
+                star_pos + Vec2::new(-glint, 0.0),
+                star_pos + Vec2::new(glint, 0.0),
+                glint_color,
+            );
+            gizmos.line_2d(
+                star_pos + Vec2::new(0.0, -glint),
+                star_pos + Vec2::new(0.0, glint),
+                glint_color,
+            );
+        }
     }
 
     // 2. Draw Gateways (Evrenler arası bağlantılar ve akan enerji küreleri)
@@ -649,27 +692,51 @@ fn draw_cosmic_map_gizmos(mut gizmos: Gizmos, runtime: Res<GameRuntimeState>) {
                     };
                     gizmos.line_2d(pos_a, pos_b, line_col);
 
-                    // Energy & faith flow particle(s) along open gateway (pauses when t is paused)
+                    // A short train of energy motes makes gateway direction easier to read.
+                    // `runtime.anim_time` keeps the flow frozen while simulation is paused.
                     let speed = if is_highlighted_edge { 0.65 } else { 0.35 };
-                    let phase = (t * speed + (u.id as f32) * 0.17).fract();
-                    let flow_pos = pos_a.lerp(pos_b, phase);
-                    gizmos.circle_2d(
-                        Isometry2d::from_translation(flow_pos),
-                        if is_inspected_gw || is_hovered_gw {
-                            4.0
-                        } else if is_highlighted_edge {
-                            3.1
+                    let mote_count = if is_highlighted_edge { 4 } else { 3 };
+                    for mote_idx in 0..mote_count {
+                        let phase = (t * speed
+                            + (u.id as f32) * 0.17
+                            + mote_idx as f32 / mote_count as f32)
+                            .fract();
+                        let flow_pos = pos_a.lerp(pos_b, phase);
+                        let is_leading_mote = mote_idx == 0;
+                        let mote_color = if mote_idx % 2 == 0 {
+                            col_gold
                         } else {
+                            col_turquoise
+                        };
+                        let mote_radius = if is_inspected_gw || is_hovered_gw {
+                            if is_leading_mote {
+                                3.8
+                            } else {
+                                2.4
+                            }
+                        } else if is_highlighted_edge {
+                            if is_leading_mote {
+                                3.1
+                            } else {
+                                2.0
+                            }
+                        } else if is_leading_mote {
                             2.3
-                        },
-                        col_gold.with_alpha(0.9),
-                    );
+                        } else {
+                            1.5
+                        };
+                        gizmos.circle_2d(
+                            Isometry2d::from_translation(flow_pos),
+                            mote_radius,
+                            mote_color.with_alpha(if is_leading_mote { 0.9 } else { 0.54 }),
+                        );
+                    }
                     if is_highlighted_edge {
-                        let phase2 = (phase + 0.5).fract();
+                        let phase2 = (t * speed + (u.id as f32) * 0.17 + 0.5).fract();
                         let flow_pos2 = pos_b.lerp(pos_a, phase2);
                         gizmos.circle_2d(
                             Isometry2d::from_translation(flow_pos2),
-                            2.5,
+                            2.2,
                             col_turquoise.with_alpha(0.88),
                         );
                     }
@@ -742,6 +809,35 @@ fn draw_cosmic_map_gizmos(mut gizmos: Gizmos, runtime: Res<GameRuntimeState>) {
         let pos = Vec2::new(u.position[0], u.position[1]);
         let is_selected = u.id == runtime.selected_universe_id;
         let is_hovered = runtime.hovered_universe_id == Some(u.id);
+
+        // Layered, low-alpha aura separates each node from the starfield. Ownership
+        // takes precedence; neutral worlds use their universe-type accent instead.
+        let aura_color = u.dominant_deity().map_or_else(
+            || match u.universe_type {
+                UniverseType::Life | UniverseType::Tech => col_turquoise,
+                UniverseType::Faith | UniverseType::Primordial => col_gold,
+                UniverseType::Chaos | UniverseType::Collapsing => col_crimson,
+            },
+            |(deity_id, _)| deity_color(deity_id),
+        );
+        let aura_emphasis = if is_selected {
+            1.0
+        } else if is_hovered {
+            0.8
+        } else {
+            0.55
+        };
+        if u.discovered_by_player {
+            for (radius, alpha) in [(17.0 + pulse, 0.14), (21.0 + pulse * 1.5, 0.075)] {
+                gizmos
+                    .circle_2d(
+                        Isometry2d::from_translation(pos),
+                        radius,
+                        aura_color.with_alpha(alpha * aura_emphasis * alpha_mult),
+                    )
+                    .resolution(40);
+            }
+        }
 
         if !u.discovered_by_player {
             // Undiscovered universe: mysterious low-detail circle
@@ -983,6 +1079,13 @@ fn draw_cosmic_map_gizmos(mut gizmos: Gizmos, runtime: Res<GameRuntimeState>) {
             let angle =
                 t * speed_dir + (c_idx as f32) * (TAU / (civ_count.max(1) as f32)) + u.id as f32;
             let sat_pos = pos + Vec2::new(angle.cos() * orbit_r, angle.sin() * orbit_r);
+            gizmos
+                .circle_2d(
+                    Isometry2d::from_translation(pos),
+                    orbit_r,
+                    col_text_secondary.with_alpha(0.11 * alpha_mult),
+                )
+                .resolution(32);
             let sat_col = if civ.in_rebellion {
                 col_crimson.with_alpha(alpha_mult)
             } else if civ.divine_shield_active {
@@ -1086,6 +1189,15 @@ fn draw_cosmic_map_gizmos(mut gizmos: Gizmos, runtime: Res<GameRuntimeState>) {
                     col_text_primary.with_alpha(0.7),
                 )
                 .resolution(48);
+            for mark in 0..8 {
+                let angle = mark as f32 * (TAU / 8.0);
+                let direction = Vec2::new(angle.cos(), angle.sin());
+                gizmos.line_2d(
+                    pos + direction * (sel_r + 4.0),
+                    pos + direction * (sel_r + 7.0),
+                    col_gold.with_alpha(0.7),
+                );
+            }
         }
     }
 }

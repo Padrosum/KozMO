@@ -93,6 +93,14 @@ Harici ses dosyalarına bağımlı olmadan doğrudan Bevy'nin ses altyapısı (`
 - Pakt ve mühür haraç gelirinin saf hesabı `crates/dominion-sim/src/simulation/economy.rs` alt modülüne ayrılmıştır. Ekonomi fazının geri kalanı ve diğer fazlar henüz `simulation.rs` içindedir.
 - Bu düzenleme oyun kuralı veya kayıt biçimi değiştirmez. Modüllere ayırırken deterministik tekrar oynatma ve kayıt/yükleme testleri korunur.
 
+## Faz 2.6 — Harita görsel cilası
+
+- Sabit ve deterministik yıldız alanı, yumuşak parıltı varyasyonu ve seyrek parlak yıldız işaretleri eklendi.
+- Siyah boşluk hissini azaltan şeffaf nebula arka planı eklendi; tema zemin rengi saydam alanlardan görünmeye devam eder. Kaynak SVG ve üretilmiş PNG lisans envanterine kaydedildi.
+- Keşfedilmiş evrenlere düşük yoğunluklu tür/hâkimiyet aurası; uygarlık uydularına ince yörünge izleri eklendi. Seçili düğüm artık pusula işaretli çift halkayla vurgulanır.
+- Açık geçitlerdeki akış parçacıkları kısa bir dizi halinde çizilir ve simülasyon duraklatıldığında hareket etmez.
+- Bu görsel güncelleme simülasyon kurallarını, kayıt şemasını veya keşif bilgisinin gizliliğini değiştirmez.
+
 ---
 
 ### Onay Durumu

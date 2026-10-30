@@ -81,7 +81,12 @@ Onayınız doğrultusunda mevcut arayüz ve harita üzerinde şu görsel zenginl
 3. - [x] **Wiki İçerisinde Konu Başlığı Etiketleri (`ui/mod.rs` & `guide.rs`):**
    - Sağ paneldeki `Wiki (F1)` sekmesinde 8 ana bölüm butonunun üzerinde bölüm kısa isimleri (`1:Evrenler`, `2:Ekonomi`, `3:Emirler`, `4:Güçler`, `5:Türler`, `6:Olaylar`, `7:İlahlar`, `8:Zafer`) doğrudan yer alır.
 4. - [x] **Görsel Ekonomi & Zafer Özeti Mini-Grafiği (`ui/mod.rs`):**
-   - `Zafer` sekmesinde 10 bölmeli kozmik yoğunluk çubukları (`[◆◆◆◆◆◆○○○○]`) ve üst bardaki kaynak haplarında tur başı Ruh/Nüfuz/Öz akış yönünü gösteren renk kodlu göstergeler (`▲` zümrüt/altın artış, kızıl düşüş) yer alır.
+    - `Zafer` sekmesinde 10 bölmeli kozmik yoğunluk çubukları (`[◆◆◆◆◆◆○○○○]`) ve üst bardaki kaynak haplarında tur başı Ruh/Nüfuz/Öz akış yönünü gösteren renk kodlu göstergeler (`▲` zümrüt/altın artış, kızıl düşüş) yer alır.
+5. - [x] **Kozmik Harita Görsel Cilası (`map/mod.rs`):**
+    - Tema zeminini görünür bırakan şeffaf, mor/turkuaz/kehribar nebula dokusu; sabit konumlu, yumuşakça parıldayan çok katmanlı yıldız alanı.
+    - Seçili evrende pusula işaretli çift vurgu halkası.
+    - Keşfedilmiş evrenlerde tür rengi/hâkimiyet rengine göre düşük yoğunluklu aura, uygarlık uydularının altında ince yörünge izleri.
+    - Açık geçitlerde animasyon zamanına bağlı enerji parçacığı dizileri; duraklatıldığında akış donar. Keşfedilmemiş evrenlerin türü ve hâkimiyeti görsel olarak açığa çıkarılmaz.
 
 ---
 

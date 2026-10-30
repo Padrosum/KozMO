@@ -17,11 +17,26 @@ use ui::CosmicUiPlugin;
 const TURKISH_UNICODE_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/DejaVuSans.ttf");
 
 fn resolve_assets_path() -> String {
-    if Path::new("assets").is_dir() {
-        "assets".to_string()
-    } else {
-        "../../assets".to_string()
+    // Bevy resolves relative asset paths from the crate's manifest directory, while
+    // launchers may start the game from the user's data directory. Canonicalize the
+    // working-directory assets first (including install-time symlinks), then fall
+    // back to the repository assets relative to this crate.
+    let candidates = [
+        Path::new("assets").to_path_buf(),
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets"),
+    ];
+    for candidate in candidates {
+        if let Ok(path) = candidate.canonicalize() {
+            if path.is_dir() {
+                return path.to_string_lossy().into_owned();
+            }
+        }
     }
+
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../assets")
+        .to_string_lossy()
+        .into_owned()
 }
 
 fn main() {
